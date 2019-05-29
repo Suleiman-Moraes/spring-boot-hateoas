@@ -34,7 +34,7 @@ public class Product extends ResourceSupport {
 	@GeneratedValue (strategy = GenerationType.AUTO)
 	@Column(name="id")
 	@XmlAttribute(name = "id")
-	private Integer idProduct;
+	private Long idProduct;
 	@XmlElement
 	private String name;
 	@XmlElement

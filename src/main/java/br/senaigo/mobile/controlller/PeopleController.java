@@ -4,8 +4,6 @@ import static org.springframework.hateoas.mvc.ControllerLinkBuilder.linkTo;
 
 import java.util.List;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.hateoas.Link;
 import org.springframework.hateoas.MediaTypes;
@@ -17,18 +15,13 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
 import br.senaigo.mobile.controlller.abstracts.PadraoController;
-import br.senaigo.mobile.entities.Order;
 import br.senaigo.mobile.entities.People;
 import br.senaigo.mobile.interfaces.GenericOperations;
-import br.senaigo.mobile.interfaces.GenericOperationsController;
-import br.senaigo.mobile.service.OrderService;
 import br.senaigo.mobile.service.PeopleService;
 
 @RestController
@@ -36,72 +29,55 @@ import br.senaigo.mobile.service.PeopleService;
 public class PeopleController extends PadraoController<People> {
 	@Autowired
 	public PeopleService peopleService;
-	
+
 	@Override
-	@PostMapping(consumes = { MediaType.APPLICATION_JSON_VALUE, MediaType.APPLICATION_XML_VALUE }, 
-				 produces = {MediaType.APPLICATION_JSON_VALUE,
-						 	 MediaType.APPLICATION_XML_VALUE,
-						 	 MediaTypes.HAL_JSON_VALUE})
+	@PostMapping(consumes = { MediaType.APPLICATION_JSON_VALUE, MediaType.APPLICATION_XML_VALUE }, produces = {
+			MediaType.APPLICATION_JSON_VALUE, MediaType.APPLICATION_XML_VALUE, MediaTypes.HAL_JSON_VALUE })
 	public ResponseEntity<Resource<People>> post(@RequestBody People people) {
 		try {
 			peopleService.post(people);
 			getLogger().info("Registro inserido");
-			
+
 			Link link = linkTo(PeopleController.class).slash(people.getIdPeople()).withSelfRel();
-			Resource<People> result = new Resource<People>(people,link);
+			Resource<People> result = new Resource<People>(people, link);
 			return ResponseEntity.status(HttpStatus.CREATED).body(result);
 		} catch (Exception e) {
-			getLogger().error(String.format("Erro ao executar o método POST.\nMensagem: %s",e.getMessage()));
+			getLogger().error(String.format("Erro ao executar o método POST.\nMensagem: %s", e.getMessage()));
 			return ResponseEntity.badRequest().body(null);
 		}
 	}
 
 	@Override
-	@GetMapping(produces = { MediaType.APPLICATION_JSON_VALUE, 
-							 MediaType.APPLICATION_XML_VALUE,
-							 MediaTypes.HAL_JSON_VALUE})
-	public ResponseEntity<Resources<People>> get(){
+	@GetMapping(produces = { MediaType.APPLICATION_JSON_VALUE, MediaType.APPLICATION_XML_VALUE,
+			MediaTypes.HAL_JSON_VALUE })
+	public ResponseEntity<Resources<People>> get() {
 		try {
 			List<People> peoples = peopleService.get();
+
+			getLogger().info(String.format("Registro(s) recuperados(s): %s", peoples.toString()));
 			
-			getLogger().info(String.format("Registro(s) recuperados(s): %s",peoples.toString()));
-			
-			for (final Order order : orders) {
-		        Link selfLink = linkTo(OrderController.class)
-		        		.slash(order.getIdOrder())
-		        		.withSelfRel();
-		        
-		        Link selfLinkPeople = linkTo(PeopleController.class)
-		        		.slash(order.getPeople().getIdPeople())
-		        		.withSelfRel();
-		        
-		        order.getPeople().add(selfLinkPeople);
-		        order.add(selfLink);
-		    }
-			 Link link = linkTo(OrderController.class).withSelfRel();
-			 Resources<Order> result = new Resources<Order>(orders, link);
-			 return ResponseEntity.ok(result);
+			Link link = linkTo(PeopleController.class).withSelfRel();
+			Resources<People> result = new Resources<People>(peoples, link);
+			return ResponseEntity.ok(result);
 		} catch (Exception e) {
-			getLogger().error(String.format("Erro ao executar o método GET.\nMensagem: %s",e.getMessage()));
+			getLogger().error(String.format("Erro ao executar o método GET.\nMensagem: %s", e.getMessage()));
 			return ResponseEntity.badRequest().body(null);
 		}
 	}
 
 	@Override
-	@GetMapping(value="/{id}",
-				consumes = { MediaType.APPLICATION_JSON_VALUE, MediaType.APPLICATION_XML_VALUE }, 
-	 			produces = {MediaType.APPLICATION_JSON_VALUE,
-	 						MediaType.APPLICATION_XML_VALUE,
-	 						MediaTypes.HAL_JSON_VALUE})
+	@GetMapping(value = "/{id}", consumes = { MediaType.APPLICATION_JSON_VALUE,
+			MediaType.APPLICATION_XML_VALUE }, produces = { MediaType.APPLICATION_JSON_VALUE,
+					MediaType.APPLICATION_XML_VALUE, MediaTypes.HAL_JSON_VALUE })
 	public ResponseEntity<Resource<People>> get(@PathVariable("id") Long id) {
 		try {
-			Order order = orderService.get(Order.builder().idOrder(id).build());
-			getLogger().info(String.format("Registro recuperado: %s",order.toString()));
-			Link link = linkTo(OrderController.class).slash(order.getIdOrder()).withSelfRel();
-			Resource<Order> result = new Resource<Order>(order,link);
+			People people = peopleService.get(People.builder().idPeople(id).build());
+			getLogger().info(String.format("Registro recuperado: %s", people.toString()));
+			Link link = linkTo(PeopleController.class).slash(people.getIdPeople()).withSelfRel();
+			Resource<People> result = new Resource<People>(people, link);
 			return ResponseEntity.ok(result);
 		} catch (Exception e) {
-			getLogger().error(String.format("Erro ao executar o método GET.\nMensagem: %s",e.getMessage()));
+			getLogger().error(String.format("Erro ao executar o método GET.\nMensagem: %s", e.getMessage()));
 			return ResponseEntity.badRequest().body(null);
 		}
 	}
