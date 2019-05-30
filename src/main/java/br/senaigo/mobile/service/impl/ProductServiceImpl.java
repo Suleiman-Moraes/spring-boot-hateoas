@@ -99,7 +99,11 @@ public class ProductServiceImpl implements ProductService{
 
 	@Override
 	public List<Product> get() {
-		// TODO Auto-generated method stub
+		try {
+			return productRepository.findAll();
+		} catch (Exception e) {
+			logger.error("Error ao recuperar registro." +e.getMessage());
+		}
 		return null;
 	}
 

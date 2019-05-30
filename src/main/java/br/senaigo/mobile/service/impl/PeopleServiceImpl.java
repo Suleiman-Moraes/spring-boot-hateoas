@@ -99,7 +99,11 @@ public class PeopleServiceImpl implements PeopleService{
 
 	@Override
 	public List<People> get() {
-		// TODO Auto-generated method stub
+		try {
+			return peopleRepository.findAll();
+		} catch (Exception e) {
+			logger.error("Error ao recuperar registro." +e.getMessage());
+		}
 		return null;
 	}
 	
